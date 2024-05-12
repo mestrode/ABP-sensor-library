@@ -41,10 +41,36 @@ SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinNam
 /// @return sensor status (see datasheet)
 SensorAbp::sensorAbpStatus_t SensorAbp::read()
 {
+    return readPressureTemperature11();
+}
+
+/// @brief read Sensor values
+/// @details results are provided in: status, pressure, temperature
+/// @return sensor status (see datasheet)
+sensorAbpStatus_t readPressure()
+{
     digitalWrite(_pin_SS, LOW);
     SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
     uint16_t response_status_pressure = SPI.transfer16(0x0000);
-    uint16_t response_temp = SPI.transfer16(0x0000);
+    SPI.endTransaction();
+    digitalWrite(_pin_SS, HIGH);
+
+    // decode status
+    status = (sensorAbpStatus_t)(response_status_pressure >> (6 + 8));
+
+    // decode and convert pressure
+    uint16_t raw_pressure = response_status_pressure & 0x3FFF;
+    pressure = convertRawPressure(raw_pressure);
+
+    return status;
+}
+
+sensorAbpStatus_t readPressureTemperature8()
+{
+    digitalWrite(_pin_SS, LOW);
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
+    uint16_t response_status_pressure = SPI.transfer16(0x0000);
+    uint16_t response_temp8 = SPI.transfer(0x0000); // only upper 8 bit
     SPI.endTransaction();
     digitalWrite(_pin_SS, HIGH);
 
@@ -56,8 +82,33 @@ SensorAbp::sensorAbpStatus_t SensorAbp::read()
     pressure = convertRawPressure(raw_pressure);
 
     // decode and convert temperature
-    uint16_t raw_temperature = response_temp >> 5;
-    temperature = convertRawTemperature(raw_temperature);
+    // reuse upper 3 bits to fillup missing lower bits
+    // ensures to include full scale range
+    uint16_t T_raw11 = response_temp8 << (8-5) | response_temp8 >> 5;
+    temperature = convertRawTemperature11(T_raw11);
+
+    return status;
+}
+
+sensorAbpStatus_t readPressureTemperature11()
+{
+    digitalWrite(_pin_SS, LOW);
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
+    uint16_t response_status_pressure = SPI.transfer16(0x0000);
+    uint16_t response_temp16 = SPI.transfer16(0x0000); // full 16 bit (contains 11 bits for temperature)
+    SPI.endTransaction();
+    digitalWrite(_pin_SS, HIGH);
+
+    // decode status
+    status = (sensorAbpStatus_t)(response_status_pressure >> (6 + 8));
+
+    // decode and convert pressure
+    uint16_t raw_pressure = response_status_pressure & 0x3FFF;
+    pressure = convertRawPressure(raw_pressure);
+
+    // decode and convert temperature
+    uint16_t raw_temperature = response_temp16 >> 5;
+    temperature = convertRawTemperature11(raw_temperature);
 
     return status;
 }
@@ -65,7 +116,7 @@ SensorAbp::sensorAbpStatus_t SensorAbp::read()
 /// @brief Convert Pressure raw --> physical value
 /// @param P_raw Sensor raw value in digit
 /// @return physical value in mbar
-float SensorAbp::convertRawPressure(uint16_t P_raw)
+float SensorAbp::convertRawPressure(const uint16_t P_raw)
 {
     constexpr float P_phy_diff = P_phy_max - P_phy_min;
     constexpr uint16_t P_raw_diff = P_raw_max - P_raw_min;
@@ -77,10 +128,10 @@ float SensorAbp::convertRawPressure(uint16_t P_raw)
     return P_phy;
 }
 
-/// @brief Convert Temperature raw --> physical value
+/// @brief Convert Temperature 11bit raw --> physical value
 /// @param T_raw Sensor raw value in digit
 /// @return physical value in Celsius
-float SensorAbp::convertRawTemperature(uint16_t T_raw)
+float SensorAbp::convertRawTemperature11(const uint16_t T_raw)
 {
     constexpr float T_phy_diff = T_phy_max - T_phy_min;
     constexpr uint16_t T_raw_diff = T_raw_max - T_raw_min;

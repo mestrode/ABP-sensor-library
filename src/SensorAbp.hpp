@@ -49,10 +49,13 @@ public:
     SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinName pin_SS);
 
     sensorAbpStatus_t read();
+    sensorAbpStatus_t readPressure();
+    sensorAbpStatus_t readPressureTemperature8();
+    sensorAbpStatus_t readPressureTemperature11();
 
 private:
     PinName _pin_SS;
 
-    float convertRawPressure(uint16_t P_raw);
-    float convertRawTemperature(uint16_t T_raw);
+    float convertRawPressure(const uint16_t P_raw);
+    float convertRawTemperature11(const uint16_t T_raw);
 };
