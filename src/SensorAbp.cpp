@@ -25,7 +25,7 @@
 #include <SPI.h>
 
 SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinName pin_SS):
-    _pin_SS(pin_SCK)
+    _pin_SS(pin_SS)
 {
     pin_mode(pin_SCK, OUTPUT);
     pin_mode(pin_MOSI, OUTPUT);
