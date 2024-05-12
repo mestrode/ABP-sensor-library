@@ -24,9 +24,6 @@
 
 #include <SPI.h>
 
-
-SPISettings spi_Setting_Abp(800000, MSBFIRST, SPI_MODE0);
-
 SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinName pin_SS):
     _pin_SS(pin_SCK)
 {
@@ -45,7 +42,7 @@ SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinNam
 SensorAbp::sensorAbpStatus_t SensorAbp::read()
 {
     digitalWrite(_pin_SS, LOW);
-    SPI.beginTransaction(spi_Setting_Abp);
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
     uint16_t response_status_pressure = SPI.transfer16(0x0000);
     uint16_t response_temp = SPI.transfer16(0x0000);
     SPI.endTransaction();
