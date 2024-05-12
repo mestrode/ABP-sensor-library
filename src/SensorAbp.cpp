@@ -82,8 +82,8 @@ sensorAbpStatus_t readPressureTemperature8()
     pressure = convertRawPressure(raw_pressure);
 
     // decode and convert temperature
-    // reuse upper 3 bits to fillup missing lower bits
-    // ensures to include full scale range
+    // Datasheet: "left shift and append the 3 LSB with zero"
+    // But, to ensure full scale range: Reuse 3 MSB to fillup missing LSB
     uint16_t T_raw11 = response_temp8 << (8-5) | response_temp8 >> 5;
     temperature = convertRawTemperature11(T_raw11);
 
@@ -133,6 +133,9 @@ float SensorAbp::convertRawPressure(const uint16_t P_raw)
 /// @return physical value in Celsius
 float SensorAbp::convertRawTemperature11(const uint16_t T_raw)
 {
+    // Datasheet:
+    // float T_phy = float(T_raw) / 2047.0 * 200.0 - 50.0;
+
     constexpr float T_phy_diff = T_phy_max - T_phy_min;
     constexpr uint16_t T_raw_diff = T_raw_max - T_raw_min;
     constexpr float T_fact = T_phy_diff / (float)(T_raw_diff);
