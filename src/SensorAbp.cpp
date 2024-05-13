@@ -47,10 +47,10 @@ SensorAbp::sensorAbpStatus_t SensorAbp::read()
 /// @brief read Sensor values
 /// @details results are provided in: status, pressure, temperature
 /// @return sensor status (see datasheet)
-SensorAbp::sensorAbpStatus_t readPressure()
+SensorAbp::sensorAbpStatus_t SensorAbp::readPressure()
 {
     digitalWrite(_pin_SS, LOW);
-    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
     uint16_t response_status_pressure = SPI.transfer16(0x0000);
     SPI.endTransaction();
     digitalWrite(_pin_SS, HIGH);
@@ -65,10 +65,10 @@ SensorAbp::sensorAbpStatus_t readPressure()
     return status;
 }
 
-SensorAbp::sensorAbpStatus_t readPressureTemperature8()
+SensorAbp::sensorAbpStatus_t SensorAbp::readPressureTemperature8()
 {
     digitalWrite(_pin_SS, LOW);
-    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
     uint16_t response_status_pressure = SPI.transfer16(0x0000);
     uint16_t response_temp8 = SPI.transfer(0x0000); // only upper 8 bit
     SPI.endTransaction();
@@ -90,10 +90,10 @@ SensorAbp::sensorAbpStatus_t readPressureTemperature8()
     return status;
 }
 
-SensorAbp::sensorAbpStatus_t readPressureTemperature11()
+SensorAbp::sensorAbpStatus_t SensorAbp::readPressureTemperature11()
 {
     digitalWrite(_pin_SS, LOW);
-    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
+    SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0));
     uint16_t response_status_pressure = SPI.transfer16(0x0000);
     uint16_t response_temp16 = SPI.transfer16(0x0000); // full 16 bit (contains 11 bits for temperature)
     SPI.endTransaction();
