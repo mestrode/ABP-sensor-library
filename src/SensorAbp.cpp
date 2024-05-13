@@ -47,7 +47,7 @@ SensorAbp::sensorAbpStatus_t SensorAbp::read()
 /// @brief read Sensor values
 /// @details results are provided in: status, pressure, temperature
 /// @return sensor status (see datasheet)
-sensorAbpStatus_t readPressure()
+SensorAbp::sensorAbpStatus_t readPressure()
 {
     digitalWrite(_pin_SS, LOW);
     SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
@@ -65,7 +65,7 @@ sensorAbpStatus_t readPressure()
     return status;
 }
 
-sensorAbpStatus_t readPressureTemperature8()
+SensorAbp::sensorAbpStatus_t readPressureTemperature8()
 {
     digitalWrite(_pin_SS, LOW);
     SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
@@ -90,7 +90,7 @@ sensorAbpStatus_t readPressureTemperature8()
     return status;
 }
 
-sensorAbpStatus_t readPressureTemperature11()
+SensorAbp::sensorAbpStatus_t readPressureTemperature11()
 {
     digitalWrite(_pin_SS, LOW);
     SPI.beginTransaction(SPISettings(800000, MSBFIRST, SPI_MODE0););
