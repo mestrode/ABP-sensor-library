@@ -1,38 +1,40 @@
 /*!
  * @file SensorABP.cpp
- * 
+ *
  * @mainpage mestrode ABP Library
- * 
+ *
  * @section intro_sec Introduction
- * 
+ *
  * This is a library for the Honywell ABP-Series Pressure Sensor
- * 
+ *
  * Refered Documentation by Honeywell
  * https://prod-edam.honeywell.com/content/dam/honeywell-edam/sps/siot/ja/products/sensors/pressure-sensors/common/documents/sps-siot-spi-comms-digital-ouptu-pressure-sensors-tn-008202-3-en-ciid-45843.pdf
- * 
+ *
  * @section author Author
- * 
+ *
  * Written by mestrode (contact via Github)
- * 
+ *
  * @section license License
- * 
+ *
  * GPL 2.0, all text above must be included in any redistribution
- * 
-*/
+ *
+ */
 
 #include "SensorAbp.hpp"
 
 #include <SPI.h>
 
-SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinName pin_SS):
-    _pin_SS(pin_SS)
+SensorAbp::SensorAbp(PinName pin_SCK, PinName pin_MOSI, PinName pin_MISO, PinName pin_SS) : _pin_SS(pin_SS)
 {
     pin_mode(pin_SCK, OUTPUT);
     pin_mode(pin_MOSI, OUTPUT);
     pin_mode(pin_MISO, INPUT);
     pin_mode(pin_SS, OUTPUT);
     digitalWrite(pin_SS, HIGH);
+}
 
+SensorAbp::sensorAbpStatus_t SensorAbp::begin()
+{
     SPI.begin();
 }
 
@@ -84,7 +86,7 @@ SensorAbp::sensorAbpStatus_t SensorAbp::readPressureTemperature8()
     // decode and convert temperature
     // Datasheet: "left shift and append the 3 LSB with zero"
     // But, to ensure full scale range: Reuse 3 MSB to fillup missing LSB
-    uint16_t T_raw11 = response_temp8 << (8-5) | response_temp8 >> 5;
+    uint16_t T_raw11 = response_temp8 << (8 - 5) | response_temp8 >> 5;
     temperature = convertRawTemperature11(T_raw11);
 
     return status;
@@ -140,7 +142,7 @@ float SensorAbp::convertRawTemperature11(const uint16_t T_raw)
     constexpr uint16_t T_raw_diff = T_raw_max - T_raw_min;
     constexpr float T_fact = T_phy_diff / (float)(T_raw_diff);
 
-    float T_phy = (float)(T_raw) * T_fact;
+    float T_phy = (float)(T_raw)*T_fact;
     T_phy = T_phy + T_phy_min;
 
     return T_phy;
